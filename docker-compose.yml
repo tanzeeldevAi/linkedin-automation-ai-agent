@@ -1,0 +1,43 @@
+# Base stack. Binds to localhost only, so nothing is public until the Traefik
+# override is applied on top:
+#
+#   docker compose up -d --build                                   (private)
+#   docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+#
+# Runs alongside the existing Coolify apps on this VPS. Nothing already on the
+# server is touched.
+services:
+  linkedin-agent:
+    build: .
+    container_name: linkedin-agent
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Chrome profile (the logged-in session), SQLite, and failure screenshots.
+      # Losing this volume means logging in again, so it is a named volume, not
+      # a bind mount into the build directory.
+      - linkedin-agent-data:/data
+      # config.yaml is mounted, NOT baked in. Two reasons, both of which bit us:
+      #   * `run.py learn` writes the me: block back into this file. Baked into
+      #     the image, everything it learned would be lost on the next rebuild.
+      #   * tuning icp:/voice: should be an edit plus a restart, not a rebuild.
+      # Edit it on the host, then: docker compose restart
+      - ./config.yaml:/app/config.yaml
+    ports:
+      # Localhost only. Reach them with an SSH tunnel until a domain is wired up:
+      #   ssh -L 4300:127.0.0.1:4300 -L 6080:127.0.0.1:6080 user@your-server
+      - "127.0.0.1:4300:4300"
+      - "127.0.0.1:6080:6080"
+    # Chrome is the memory hog here. 2 GB is comfortable for one tab; the VPS
+    # has other apps on it that must not get squeezed.
+    mem_limit: 2g
+    shm_size: 512m
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true
+
+volumes:
+  linkedin-agent-data:

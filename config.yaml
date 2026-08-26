@@ -1,0 +1,467 @@
+# =============================================================================
+# linkedin-agent config
+#
+# One file drives the whole agent. Everything below is tunable EXCEPT the intent
+# of the limits block -- see the warning above it.
+#
+# After editing `me.profile_url`, run:  python run.py learn
+# That reads the live profile and fills in the rest of the `me:` block for you.
+# =============================================================================
+
+me:
+  # The only value you MUST set by hand. Everything else `learn` discovers.
+  profile_url: ""            # e.g. https://www.linkedin.com/in/your-slug/
+  name: ""
+  first_name: ""
+  headline: ""
+  about: ""
+  location: ""
+  services: []               # filled from the profile's Services / About section
+  learned_at: ""
+  learn_source: auto         # auto | edited -- the dashboard flags 'auto' as unreviewed
+
+# -----------------------------------------------------------------------------
+# PROOF -- the only claims the writer is allowed to make.
+#
+# Hard rule enforced in write.py: the model may reference these and nothing
+# else numeric. It may not invent a client, a percentage, or a timeframe. If a
+# post needs a number that is not in this list, the post gets written without a
+# number. Every line here is GSC-verified.
+# -----------------------------------------------------------------------------
+# REPLACE EVERY LINE BELOW WITH YOUR OWN VERIFIED NUMBERS.
+# The examples are placeholders. Each one should be something you could pull up
+# in Search Console, Analytics or an invoice if a prospect asked on a call.
+# If you have no numbers yet, delete them all and leave this list empty --
+# the writer then writes posts with no figures in them, which is correct.
+proof:
+  - "<Client or project, category>: <N> clicks and <N> impressions over <N> months."
+  - "<Client or project>: from 0 to <N> clicks and <N> impressions in 90 days."
+  - "<Client or project>: <N> clicks at a <N>% CTR, roughly <N>x the category average, in 90 days."
+  - "<yourdomain.com>: main keyword to page 1 position <N> in <N> months."
+  - "Working in <your field> since <year>, around <N> <type of> projects delivered."
+  - "Serving clients across <your regions>."
+
+# Things that are true and useful but are positioning, not statistics.
+# These are safe to state without a number behind them. Rewrite in your voice.
+positioning:
+  - "Real ranking movement takes 60 to 90 days. I refuse to promise page one in 30."
+  - "A specialist beats a generalist agency in a narrow field, because it is all I do."
+  - "Most businesses do not need more traffic. They need the traffic they already get to convert."
+  - "Free audit first, then a 30/60/90 roadmap. Prices get quoted after the audit, never before."
+
+# -----------------------------------------------------------------------------
+# VOICE -- how everything is written. This is the difference between a post that
+# reads like you and a post that reads like ChatGPT.
+# -----------------------------------------------------------------------------
+voice: >-
+  Plain, direct, first person. A practitioner who has actually fixed this for
+  real local businesses, not a marketer describing marketing. Short paragraphs,
+  one idea each. Concrete specifics over adjectives: name the actual setting in
+  Google Business Profile, the actual field, the actual number of days. If the
+  honest answer is "you do not need to pay anyone for this", say that. Never
+  pitch in a comment. No hype, no em-dashes, no rhetorical questions as openers,
+  no "Great question", no "In today's digital landscape", no emoji bullets, no
+  engagement bait like "Agree?" or "Thoughts?". British/neutral spelling is fine.
+  Write like a text message from someone competent, not a press release.
+
+banned_phrases:
+  - "in today's digital landscape"
+  - "in today's fast-paced"
+  - "game changer"
+  - "game-changer"
+  - "unlock the power"
+  - "unlock your"
+  - "supercharge"
+  - "let's dive in"
+  - "dive deep"
+  - "great question"
+  - "i hope this helps"
+  - "revolutionize"
+  - "leverage the power"
+  - "at the end of the day"
+  - "needle-moving"
+  - "synergy"
+  - "thoughts?"
+  - "agree?"
+  - "who else"
+  - "drop a comment"
+  - "dm me"
+  - "link in bio"
+  - "as an expert"
+  - "delve"
+  - "tapestry"
+  - "testament to"
+  - "it's not just"
+  - "🚀"
+  - "💡"
+  - "🔥"
+
+# -----------------------------------------------------------------------------
+# ICP -- who we are trying to reach. Drives both prospecting and comment targets.
+# -----------------------------------------------------------------------------
+icp:
+  regions:
+    us_ca:
+      enabled: true
+      geo: ["United States", "Canada"]
+      weight: 1.0
+    uk_eu:
+      enabled: true
+      geo: ["United Kingdom", "Ireland", "Netherlands", "Germany", "Spain"]
+      weight: 0.8
+    uae:
+      enabled: true
+      geo: ["United Arab Emirates", "Dubai", "Abu Dhabi", "Saudi Arabia", "Qatar"]
+      weight: 0.9
+
+  # Decision makers only. A marketing coordinator cannot sign off a retainer.
+  titles:
+    - owner
+    - founder
+    - co-founder
+    - "managing director"
+    - proprietor
+    - director
+    - president
+    - "general manager"
+    - "practice owner"
+    - "practice manager"
+    - "operations manager"
+    - "marketing manager"
+    - ceo
+
+  # Local service businesses that live or die on the map pack.
+  industries:
+    - plumbing
+    - hvac
+    - "air conditioning"
+    - roofing
+    - electrician
+    - electrical
+    - landscaping
+    - "lawn care"
+    - "pest control"
+    - "garage door"
+    - locksmith
+    - "home renovation"
+    - remodeling
+    - construction
+    - contractor
+    - flooring
+    - painting
+    - cleaning
+    - "moving company"
+    - "junk removal"
+    - dentist
+    - dental
+    - orthodontist
+    - chiropractor
+    - physiotherapy
+    - "medical clinic"
+    - "aesthetic clinic"
+    - "med spa"
+    - dermatology
+    - veterinary
+    - optometrist
+    - "law firm"
+    - attorney
+    - solicitor
+    - "personal injury"
+    - "family law"
+    - "real estate"
+    - realtor
+    - "property management"
+    - "auto repair"
+    - "car detailing"
+    - "collision repair"
+    - "driving school"
+    - salon
+    - "hair salon"
+    - barbershop
+    - spa
+    - "nail salon"
+    - gym
+    - "fitness studio"
+    - "personal training"
+    - yoga
+    - restaurant
+    - cafe
+    - catering
+    - bakery
+    - "event planning"
+    - photography
+    - florist
+    - "wedding venue"
+    - limo
+    - limousine
+    - chauffeur
+    - "black car"
+    - "party bus"
+    - "airport transfer"
+    - "taxi service"
+    - "tour operator"
+    - "travel agency"
+    - "security services"
+    - "staffing agency"
+    - tutoring
+    - "childcare"
+    - "pet grooming"
+
+  # Anyone matching these is excluded before scoring. Cheap and decisive.
+  exclude_headline:
+    - recruiter
+    - "talent acquisition"
+    - "hiring manager"
+    - "seeking new opportunities"
+    - "open to work"
+    - student
+    - intern
+    - "recent graduate"
+    - "seo expert"
+    - "seo specialist"
+    - "seo consultant"
+    - "digital marketer"
+    - "digital marketing agency"
+    - "growth hacker"
+    - "social media manager"
+    - "link building"
+    - "guest posting"
+    - crypto
+    - blockchain
+    - nft
+    - forex
+    - "network marketing"
+    - mlm
+    - "life coach"
+    - "mindset coach"
+    - "business coach"
+    - astrologer
+    - "lead generation expert"
+    - "appointment setter"
+    - "cold email"
+    - "virtual assistant"
+
+  # Words in a post or headline that say "this person has the problem now".
+  buying_signals:
+    - "not ranking"
+    - "not showing up"
+    - "google business profile"
+    - "google my business"
+    - "map pack"
+    - "google maps"
+    - "suspended"
+    - "reinstate"
+    - "google reviews"
+    - "need more leads"
+    - "more leads"
+    - "no leads"
+    - "phone stopped ringing"
+    - "slow season"
+    - "new website"
+    - "website redesign"
+    - "just opened"
+    - "now open"
+    - "second location"
+    - "new location"
+    - "expanding to"
+    - "grand opening"
+    - "hiring"
+    - "google ads"
+    - "wasting money on ads"
+    - "cost per lead"
+    - "local seo"
+    - "found us on google"
+
+# -----------------------------------------------------------------------------
+# DISCOVERY -- where the agent looks. Kept deliberately narrow: LinkedIn applies
+# a monthly "commercial use limit" to searching, and burning it in week one
+# blinds the agent for the rest of the month.
+# -----------------------------------------------------------------------------
+discovery:
+  # Posts worth commenting on. Feed first -- it is free and unmetered.
+  read_own_feed: true
+  feed_scroll_steps: 6
+
+  hashtags:
+    - localseo
+    - googlebusinessprofile
+    - smallbusinessowner
+    - localbusiness
+    - homeservices
+    - contractorlife
+    - dentalpractice
+    - medspa
+    - lawfirmmarketing
+    - restaurantowner
+    - salonowner
+    - smallbiz
+
+  # People search. Each query costs against the commercial-use limit, so the
+  # list is short and the agent rotates through it one per cycle.
+  people_queries:
+    - "owner plumbing company"
+    - "owner hvac company"
+    - "founder home renovation"
+    - "owner dental practice"
+    - "practice owner clinic"
+    - "owner law firm"
+    - "owner auto repair shop"
+    - "owner salon spa"
+    - "owner gym fitness studio"
+    - "owner restaurant"
+    - "owner limo chauffeur service"
+    - "managing director property management"
+
+  max_people_per_query: 10
+  max_posts_per_source: 15
+  # Skip posts older than this -- commenting on a 4-day-old post is invisible.
+  max_post_age_hours: 20
+  min_post_reactions: 2
+  # Don't join a pile-on; the 60th comment is never read.
+  max_post_comments: 45
+
+# -----------------------------------------------------------------------------
+# SCORING
+# -----------------------------------------------------------------------------
+scoring:
+  min_prospect_score: 45
+  min_post_score: 40
+  recency_half_life_hours: 12
+  # Never comment on the same person twice inside this window.
+  same_author_cooldown_hours: 72
+
+# -----------------------------------------------------------------------------
+# CONTENT -- what gets posted. The agent rotates pillars and will not repeat a
+# pillar until the others have had a turn.
+# -----------------------------------------------------------------------------
+content:
+  pillars:
+    - name: gbp_tactic
+      weight: 3
+      brief: >-
+        One specific, immediately actionable Google Business Profile fix. Name
+        the exact setting, where it is, and what changes as a result. The reader
+        should be able to do it in under ten minutes without hiring anyone.
+    - name: honest_timeline
+      weight: 2
+      brief: >-
+        Push back on a piece of local-SEO nonsense the reader has been sold:
+        30-day page-one promises, keyword stuffing, cheap citation blasts, fake
+        review schemes. Explain what actually happens instead, with timeframes.
+    - name: result_teardown
+      weight: 2
+      brief: >-
+        Walk through one real result from the proof list: what was broken, the
+        two or three things changed, how long it took. Numbers ONLY from proof.
+        No client name beyond what the proof line already states.
+    - name: conversion_fix
+      weight: 2
+      brief: >-
+        Traffic that does not convert. Booking flows, quote forms, click-to-call
+        on mobile, response time to a new enquiry. Concrete before/after.
+    - name: ads_reality
+      weight: 1
+      brief: >-
+        Google Ads and Local Services Ads for a small local business: where the
+        budget actually leaks, what to switch off first, when ads beat SEO and
+        when they do not.
+    - name: ai_search
+      weight: 2
+      brief: >-
+        How local businesses get found inside AI answers and AI Overviews now,
+        and what is genuinely different from classic local SEO versus what is
+        the same thing with a new name.
+    - name: field_note
+      weight: 1
+      brief: >-
+        A short observation from actual client work this week. Human, specific,
+        slightly opinionated. No lesson tacked on the end, no moral.
+
+  # Preferred local-time window for the daily post, and the hour after which the
+  # agent posts anyway if the window was missed (paused, quiet hours, a failure).
+  post_window: [9, 12]
+  post_catchup_after: 15
+
+  post_min_words: 90
+  post_max_words: 220
+  comment_min_words: 18
+  comment_max_words: 65
+  note_max_chars: 280        # LinkedIn's connection-note ceiling is 300
+  # Hashtags on posts. Three is the sweet spot; more reads as spam.
+  hashtags_per_post: 3
+  # Never put a link in the post body -- LinkedIn suppresses reach on external
+  # links. If a link is essential it goes in the first comment.
+  links_in_post_body: false
+
+# -----------------------------------------------------------------------------
+# WRITING ENGINES
+# -----------------------------------------------------------------------------
+#
+# Everything is written by the `claude` CLI already signed in on this machine,
+# so drafting runs on the existing Claude subscription. No API key, no per-post
+# billing, nothing to rotate.
+#
+# Models are the CLI's aliases: opus | sonnet | haiku | fable. Posts and profile
+# copy get opus because they carry your name in a prospect's feed and there is
+# only one post a day. The higher-volume comment stream runs on sonnet.
+writing:
+  post_model: opus
+  profile_model: opus
+  comment_model: sonnet
+  note_model: sonnet
+  extract_model: sonnet        # reading your profile into structured fields
+  cli_timeout_seconds: 240
+  max_regenerations: 2         # rejected for banned phrases -> rewrite this many times
+
+# -----------------------------------------------------------------------------
+# PROFILE MAINTENANCE
+# -----------------------------------------------------------------------------
+profile:
+  # The agent reviews the profile on this cadence and proposes rewrites.
+  review_every_days: 14
+  # Autopilot: apply proposals without waiting for approval.
+  # Set to false and they queue on the dashboard for one-tap approval instead.
+  auto_apply: true
+  # Never touched automatically regardless of the flag above -- these carry
+  # identity and legal weight, and a bad automated edit here is expensive.
+  never_touch: ["name", "profile_photo", "experience_dates", "education", "certifications"]
+
+# -----------------------------------------------------------------------------
+# SAFETY RAILS
+#
+# WARNING. These numbers are already at the aggressive end of safe for an
+# account that matters. LinkedIn enforces the weekly invite ceiling itself
+# (~100 on a free account) and scores everything else behaviourally.
+#
+# If the agent is blocked, that is the system working. Raising a cap to get
+# more volume is how the account gets restricted, and a restricted account
+# cannot be un-restricted by editing this file.
+# -----------------------------------------------------------------------------
+limits:
+  posts_per_day: 1
+  comments_per_day: 12
+  connects_per_day: 12
+  connects_per_week: 80        # under LinkedIn's own ~100/week hard ceiling
+  reacts_per_day: 25           # reacting is cheap, human, and warms the feed
+  follows_per_day: 5
+
+  min_minutes_between:
+    post: 240
+    comment: 7
+    connect: 5
+    react: 3
+    follow: 10
+  min_minutes_between_any: 2
+
+  timezone: Asia/Dubai
+  active_hours: [8, 21]        # local clock; nothing fires outside this
+  weekend_factor: 0.4          # Sat/Sun damping
+  warmup_days: 14              # ramp 25% -> 100% of every cap
+  max_consecutive_failures: 3  # then stop and raise an alert
+
+# -----------------------------------------------------------------------------
+# DASHBOARD
+# -----------------------------------------------------------------------------
+dashboard:
+  port: 4300
+  title: "LinkedIn Agent"

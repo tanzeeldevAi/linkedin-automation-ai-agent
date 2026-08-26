@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinkedIn Agent</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#283039;
+    --text:#e6edf3; --dim:#8b949e; --dimmer:#6e7681;
+    --ok:#3fb950; --warn:#d29922; --err:#f85149; --accent:#58a6ff;
+    --radius:12px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f8fa; --panel:#fff; --panel2:#f0f3f6; --line:#d8dee4;
+           --text:#1f2328; --dim:#59636e; --dimmer:#818b98; --accent:#0969da; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;padding-bottom:40px}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  h1{font-size:18px;margin:0 0 2px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);
+     margin:24px 0 10px;font-weight:600}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .sub{color:var(--dim);font-size:13px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+
+  header{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;position:sticky;top:0;z-index:5}
+  .btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);
+    padding:9px 14px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;
+    white-space:nowrap}
+  .btn:hover{border-color:var(--dim)}
+  .btn.stop{background:#3d1418;border-color:#8b2c31;color:#ffb4ab}
+  .btn.start{background:#11301c;border-color:#2c6b3f;color:#96e6ac}
+  .btn.sm{padding:6px 10px;font-size:13px;font-weight:500}
+
+  .banner{border-radius:var(--radius);padding:14px;margin:14px 0;
+    border:1px solid;font-size:14px}
+  .banner.err{background:#2d1113;border-color:#8b2c31;color:#ffb4ab}
+  .banner.warn{background:#2b2109;border-color:#7d5e1a;color:#f0d58c}
+  .banner b{display:block;margin-bottom:4px}
+
+  .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px}
+  .stat .n{font-size:24px;font-weight:650;letter-spacing:-.02em}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;
+    margin-top:2px}
+
+  .bars{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px}
+  .bar{margin-bottom:12px}
+  .bar:last-child{margin-bottom:0}
+  .bar .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+  .track{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden}
+  .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+  .fill.full{background:var(--ok)}
+  .bar .why{font-size:11px;color:var(--dimmer);margin-top:4px}
+
+  .tabs{display:flex;gap:4px;overflow-x:auto;margin:22px 0 12px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:7px 13px;border-radius:99px;background:var(--panel);
+    border:1px solid var(--line);font-size:13px;cursor:pointer;white-space:nowrap;
+    color:var(--dim)}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:13px;margin-bottom:9px}
+  .card .head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:7px}
+  .pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    padding:3px 7px;border-radius:5px;background:var(--panel2);color:var(--dim)}
+  .pill.post{background:#132e4d;color:#79c0ff}
+  .pill.comment{background:#12301f;color:#7ee2a8}
+  .pill.connect{background:#2d2412;color:#e3b341}
+  .pill.react{background:#2a1c33;color:#d2a8ff}
+  .pill.profile_edit{background:#33261a;color:#ffa657}
+  .pill.err{background:#3d1418;color:#ffb4ab}
+  .card .body{white-space:pre-wrap;font-size:14px;margin-top:6px;color:var(--text)}
+  .card .meta{font-size:12px;color:var(--dimmer);margin-top:8px}
+  .score{font-size:11px;font-weight:700;color:var(--ok)}
+  .empty{color:var(--dimmer);font-size:14px;padding:24px 4px;text-align:center}
+  img.shot{max-width:100%;border-radius:8px;border:1px solid var(--line);margin-top:8px}
+  .diff{display:grid;gap:8px;margin-top:8px}
+  .diff div{padding:9px;border-radius:8px;font-size:13px;white-space:pre-wrap}
+  .diff .was{background:var(--panel2);color:var(--dim)}
+  .diff .now{background:#11301c;color:#c9f5d5;border:1px solid #2c6b3f}
+  .row{display:flex;gap:8px;margin-top:10px}
+  footer{text-align:center;color:var(--dimmer);font-size:12px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1 id="name">…</h1>
+      <div class="sub" id="headline"></div>
+      <div class="sub mono" id="worker" style="margin-top:6px"></div>
+    </div>
+    <button class="btn" id="toggle" onclick="toggleRun()">…</button>
+  </header>
+
+  <div id="banners"></div>
+
+  <h2>Today</h2>
+  <div class="grid" id="today"></div>
+
+  <h2>Allowance left today</h2>
+  <div class="bars" id="bars"></div>
+
+  <h2>Last 7 / 30 days</h2>
+  <div class="grid" id="windows"></div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="view"></div>
+
+  <footer>
+    refreshes every 30s · <span id="clock"></span>
+  </footer>
+</div>
+
+<script>
+const TABS = [
+  ['activity','Activity'], ['posts','My posts'], ['queue','Queue'],
+  ['leads','Leads'], ['profile','Profile'], ['log','Log']
+];
+let tab = localStorage.getItem('tab') || 'activity';
+let paused = false;
+
+const esc = s => (s??'').toString().replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function ago(ts){
+  if(!ts) return '';
+  const s = Math.max(0, Date.now()/1000 - ts);
+  if(s<60) return Math.round(s)+'s ago';
+  if(s<3600) return Math.round(s/60)+'m ago';
+  if(s<86400) return Math.round(s/3600)+'h ago';
+  return Math.round(s/86400)+'d ago';
+}
+
+async function get(path){
+  const r = await fetch(path);
+  if(!r.ok) throw new Error(path+' -> '+r.status);
+  return r.json();
+}
+
+function statCard(n, l){
+  return `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+}
+
+async function loadSummary(){
+  const d = await get('/api/summary');
+  paused = d.health.paused;
+
+  document.getElementById('name').textContent = d.me.name || 'LinkedIn Agent';
+  document.getElementById('headline').textContent = d.me.headline || '';
+  document.getElementById('worker').textContent =
+    `${d.worker_status} · ${d.meta.local_time} · warm-up ${Math.round(d.meta.warmup_factor*100)}%`;
+
+  const btn = document.getElementById('toggle');
+  btn.textContent = paused ? 'Start' : 'Stop';
+  btn.className = 'btn ' + (paused ? 'start' : 'stop');
+
+  // banners
+  const b = [];
+  if(paused){
+    b.push(`<div class="banner err"><b>Stopped — nothing is being posted</b>
+      ${esc(d.health.pause_reason)}
+      ${/logged_out|challenge|restricted/.test(d.health.pause_reason||'')
+        ? `<div style="margin-top:8px">This one needs you: open the browser view,
+           sign in or clear the check, then press Start.</div>` : ''}</div>`);
+  }
+  if(d.me.unreviewed && d.me.name){
+    b.push(`<div class="banner warn"><b>Profile details not reviewed by you yet</b>
+      The agent read these off your profile automatically. Worth a glance.</div>`);
+  }
+  for(const [k,v] of Object.entries(d.health.backoffs||{})){
+    b.push(`<div class="banner warn"><b>${esc(k)} is cooling off</b>${esc(v)}</div>`);
+  }
+  if(d.today.failures > 0){
+    b.push(`<div class="banner warn"><b>${d.today.failures} failed action(s) today</b>
+      Check the Activity tab — a failure usually means LinkedIn moved its buttons.</div>`);
+  }
+  document.getElementById('banners').innerHTML = b.join('');
+
+  const t = d.today;
+  document.getElementById('today').innerHTML =
+    statCard(t.posts,'posts') + statCard(t.comments,'comments') +
+    statCard(t.connects,'invites') + statCard(t.accepted,'accepted') +
+    statCard(t.leads,'leads') + statCard(t.failures,'failed');
+
+  const w = d.week, m = d.month;
+  document.getElementById('windows').innerHTML =
+    statCard(w.comments,'comments 7d') + statCard(w.connects,'invites 7d') +
+    statCard(w.accept_rate==null?'—':Math.round(w.accept_rate*100)+'%','accept 7d') +
+    statCard(w.post_reactions,'reactions 7d') +
+    statCard(m.connects,'invites 30d') + statCard(m.leads,'leads 30d');
+
+  const order = ['post','comment','connect','react'];
+  document.getElementById('bars').innerHTML = order.map(k => {
+    const r = d.budgets[k]; if(!r) return '';
+    const pct = r.cap ? Math.min(100, 100*r.done/r.cap) : 0;
+    return `<div class="bar">
+      <div class="top"><span>${k}</span>
+        <span class="sub">${r.done} / ${r.cap}</span></div>
+      <div class="track"><div class="fill ${r.left===0?'full':''}" style="width:${pct}%"></div></div>
+      ${!r.allowed_now && r.left>0 ? `<div class="why">${esc(r.blocked_by)}</div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('clock').textContent = 'updated ' + new Date().toLocaleTimeString();
+}
+
+async function loadTab(){
+  document.getElementById('tabs').innerHTML = TABS.map(([k,l]) =>
+    `<div class="tab ${k===tab?'on':''}" onclick="setTab('${k}')">${l}</div>`).join('');
+  const view = document.getElementById('view');
+  view.innerHTML = `<div class="empty">loading…</div>`;
+
+  try{
+    if(tab==='activity'){
+      const rows = await get('/api/activity?limit=80');
+      view.innerHTML = rows.length ? rows.map(r => `
+        <div class="card">
+          <div class="head">
+            <span class="pill ${r.ok?esc(r.kind):'err'}">${r.ok?esc(r.kind):'failed '+esc(r.kind)}</span>
+            ${r.target_url?`<a href="${esc(r.target_url)}" target="_blank" rel="noopener">${esc(r.target_name||'view')}</a>`
+                          :`<span>${esc(r.target_name||'')}</span>`}
+            <span class="sub" style="margin-left:auto">${ago(r.at)}</span>
+          </div>
+          ${r.body?`<div class="body">${esc(r.body)}</div>`:''}
+          ${r.error?`<div class="meta" style="color:var(--err)">${esc(r.error)}</div>`:''}
+          ${r.screenshot?`<img class="shot" loading="lazy" src="/shots/${esc(r.screenshot)}">`:''}
+          ${r.engine?`<div class="meta">written by ${esc(r.engine)}</div>`:''}
+        </div>`).join('') : `<div class="empty">Nothing yet.</div>`;
+    }
+
+    else if(tab==='posts'){
+      const rows = await get('/api/posts');
+      view.innerHTML = rows.length ? rows.map(r => `
+        <div class="card">
+          <div class="head"><span class="pill post">${esc(r.pillar||'post')}</span>
+            <span class="sub">${r.reactions} reactions · ${r.comments} comments</span>
+            <span class="sub" style="margin-left:auto">${ago(r.at)}</span></div>
+          <div class="body">${esc(r.body)}</div>
+        </div>`).join('') : `<div class="empty">No posts published yet.</div>`;
+    }
+
+    else if(tab==='queue'){
+      const q = await get('/api/queue');
+      view.innerHTML =
+        `<h2 style="margin-top:0">Posts it plans to comment on</h2>` +
+        (q.posts.length ? q.posts.map(r => `
+          <div class="card">
+            <div class="head"><span class="score">${Math.round(r.score)}</span>
+              <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.author)}</a>
+              <span class="sub" style="margin-left:auto">${Math.round(r.age_hours)}h old</span></div>
+            <div class="sub">${esc(r.headline)}</div>
+            <div class="body">${esc(r.body)}</div>
+          </div>`).join('') : `<div class="empty">Queue empty.</div>`) +
+        `<h2>People it plans to invite</h2>` +
+        (q.people.length ? q.people.map(r => `
+          <div class="card">
+            <div class="head"><span class="score">${Math.round(r.score)}</span>
+              <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>
+              <span class="sub" style="margin-left:auto">${esc(r.location)}</span></div>
+            <div class="sub">${esc(r.headline)}</div>
+          </div>`).join('') : `<div class="empty">No prospects queued.</div>`);
+    }
+
+    else if(tab==='leads'){
+      const rows = await get('/api/leads');
+      view.innerHTML = rows.length ? rows.map(r => `
+        <div class="card">
+          <div class="head"><span class="pill">${esc(r.signal)}</span>
+            <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>
+            <span class="sub" style="margin-left:auto">${ago(r.at)}</span></div>
+          <div class="sub">${esc(r.headline)}</div>
+          <div class="meta">${esc(r.detail)}</div>
+        </div>`).join('') : `<div class="empty">No warm signals yet.</div>`;
+    }
+
+    else if(tab==='profile'){
+      const rows = await get('/api/suggestions');
+      view.innerHTML = rows.length ? rows.map(r => `
+        <div class="card">
+          <div class="head"><span class="pill profile_edit">${esc(r.field)}</span>
+            <span class="sub">${esc(r.status)}</span>
+            <span class="sub" style="margin-left:auto">${ago(r.at)}</span></div>
+          <div class="diff">
+            <div class="was">${esc(r.current||'(empty)')}</div>
+            <div class="now">${esc(r.proposed)}</div>
+          </div>
+          <div class="meta">${esc(r.rationale)}</div>
+          ${r.status==='proposed' ? `<div class="row">
+            <button class="btn sm start" onclick="decide(${r.id},'approve')">Apply this</button>
+            <button class="btn sm" onclick="decide(${r.id},'reject')">Discard</button>
+          </div>` : `<div class="meta">Queued — applies on the next work block.</div>`}
+        </div>`).join('') : `<div class="empty">No profile changes proposed.</div>`;
+    }
+
+    else if(tab==='log'){
+      const rows = await get('/api/events?limit=120');
+      view.innerHTML = rows.length ? rows.map(r => `
+        <div class="card" style="padding:9px 12px">
+          <div class="mono" style="color:${r.level==='error'?'var(--err)':r.level==='warn'?'var(--warn)':'var(--dim)'}">
+            ${esc(r.kind)} · ${ago(r.at)}</div>
+          <div style="font-size:13px;margin-top:3px">${esc(r.message)}</div>
+        </div>`).join('') : `<div class="empty">Log is empty.</div>`;
+    }
+  }catch(e){
+    view.innerHTML = `<div class="banner err"><b>Could not load</b>${esc(e.message)}</div>`;
+  }
+}
+
+function setTab(k){ tab = k; localStorage.setItem('tab', k); loadTab(); }
+
+async function toggleRun(){
+  const btn = document.getElementById('toggle');
+  btn.disabled = true;
+  try{
+    await fetch(paused ? '/api/resume' : '/api/pause', {method:'POST'});
+    await loadSummary();
+  } finally { btn.disabled = false; }
+}
+
+async function decide(id, what){
+  await fetch(`/api/suggestions/${id}/${what}`, {method:'POST'});
+  loadTab();
+}
+
+async function refresh(){
+  try{ await loadSummary(); }catch(e){
+    document.getElementById('banners').innerHTML =
+      `<div class="banner err"><b>Dashboard cannot reach the agent</b>${esc(e.message)}</div>`;
+  }
+}
+
+refresh(); loadTab();
+setInterval(refresh, 30000);
+setInterval(loadTab, 60000);
+</script>
+</body>
+</html>

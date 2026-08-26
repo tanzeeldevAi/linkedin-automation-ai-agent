@@ -1,0 +1,32 @@
+# SECRETS - never commit.
+.env
+*.key
+*.pem
+
+# YOUR DATA - the SQLite store, the logged-in Chrome profile, screenshots.
+# A leaked Chrome profile is a leaked LinkedIn session. Treat it as a password.
+data/
+logs/
+*.db
+*.db-wal
+*.db-shm
+
+# config.yaml is TRACKED on purpose - it ships with generic defaults.
+# Your edits to it (profile URL, proof numbers) are personal but not secret.
+# If you would rather keep them private, uncomment the next line:
+# config.yaml
+
+# runtime
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

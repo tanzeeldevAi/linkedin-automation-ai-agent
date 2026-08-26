@@ -1,0 +1,42 @@
+# Publishes the stack over HTTPS using Coolify's existing Traefik proxy, which
+# issues and renews the Let's Encrypt certificates automatically.
+#
+# Set both hosts in .env first, and point A records at this VPS:
+#   DASHBOARD_HOST=li.example.com      -> the stats dashboard
+#   VNC_HOST=li-vnc.example.com        -> the remote browser view (login only)
+#   TRAEFIK_BASICAUTH=user:$apr1$...   -> htpasswd line, guards the VNC view
+#
+# Two separate hostnames rather than one host with a path, because noVNC serves
+# its assets from the root and breaks behind a stripped path prefix.
+services:
+  linkedin-agent:
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: coolify
+
+      # --- dashboard ----------------------------------------------------
+      traefik.http.routers.la-dash-http.entrypoints: http
+      traefik.http.routers.la-dash-http.rule: Host(`${DASHBOARD_HOST}`)
+      traefik.http.routers.la-dash-http.middlewares: la-dash-redirect
+      traefik.http.middlewares.la-dash-redirect.redirectscheme.scheme: https
+      traefik.http.routers.la-dash-https.entrypoints: https
+      traefik.http.routers.la-dash-https.rule: Host(`${DASHBOARD_HOST}`)
+      traefik.http.routers.la-dash-https.tls: 'true'
+      traefik.http.routers.la-dash-https.tls.certresolver: letsencrypt
+      traefik.http.routers.la-dash-https.service: la-dash
+      traefik.http.services.la-dash.loadbalancer.server.port: '4300'
+
+      # --- remote browser view (noVNC) ----------------------------------
+      # Two locks: Traefik basic auth here, and the x11vnc password inside.
+      traefik.http.routers.la-vnc-http.entrypoints: http
+      traefik.http.routers.la-vnc-http.rule: Host(`${VNC_HOST}`)
+      traefik.http.routers.la-vnc-http.middlewares: la-vnc-redirect
+      traefik.http.middlewares.la-vnc-redirect.redirectscheme.scheme: https
+      traefik.http.routers.la-vnc-https.entrypoints: https
+      traefik.http.routers.la-vnc-https.rule: Host(`${VNC_HOST}`)
+      traefik.http.routers.la-vnc-https.tls: 'true'
+      traefik.http.routers.la-vnc-https.tls.certresolver: letsencrypt
+      traefik.http.routers.la-vnc-https.service: la-vnc
+      traefik.http.routers.la-vnc-https.middlewares: la-vnc-auth
+      traefik.http.middlewares.la-vnc-auth.basicauth.users: '${TRAEFIK_BASICAUTH}'
+      traefik.http.services.la-vnc.loadbalancer.server.port: '6080'
