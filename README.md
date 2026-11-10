@@ -9,6 +9,7 @@ It is built around the assumption that your LinkedIn account matters. Every rail
 losing the account costs more than any amount of extra volume is worth.
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Tests](https://github.com/tanzeeldevAi/linkedin-automation-ai-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/tanzeeldevAi/linkedin-automation-ai-agent/actions/workflows/tests.yml)
 [![Playwright](https://img.shields.io/badge/Playwright-Chromium-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](#running-it-on-a-server)
 [![Developed by Tanzeel](https://img.shields.io/badge/Developed%20by-Tanzeel-6C3EF5)](https://github.com/tanzeeldevAi)
